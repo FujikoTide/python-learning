@@ -382,10 +382,7 @@ class Task_CLI:
                 break
             if choice == "1":
                 task = self._add_task()
-                try:
-                    self._tasks.add_task(task)
-                except NameError as e:
-                    print(e)
+                self._tasks.add_task(task)
             if choice == "2":
                 self._list_tasks()
             if choice == "3":
