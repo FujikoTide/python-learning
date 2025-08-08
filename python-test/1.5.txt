@@ -1,0 +1,29 @@
+Calculating the factorial of a number:
+I feel like this is a reasonably simple mathematical calcualtion and therefore a function would be all that is needed.
+
+
+
+Building a simple bank application (accounts, transactions):
+This is an OOP project.
+Classes can include: 
+  Customer: includes account_ID, name, address, methods for changing some of those
+  Account: Includes properties like customer_ID, account_balance, interest_rate etc, methods for changing some of those
+  Transaction: methods such as add_money, remove_money, add_interest and so on
+
+
+
+Sorting a list of integers:
+again a function would suffice
+
+
+
+Representing playing cards and a deck of cards:
+this would be some classes: Card, Cards
+Card would have properties: suit, value
+Cards would have properties: List[Card]
+Cards would have methods: shuffle, deal, remove_card (this could be removing a card from a random position in the deck, not necessarily dealing a card from the top), add_card, reset_deck
+
+
+
+Converting temperature from Celsius to Fahrenheit:
+again a simple mathematical function, but if it was converting from C to F and also from F to C, then perhaps a simple class may suffice
