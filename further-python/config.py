@@ -72,3 +72,5 @@ PRINT_TASKS_TOP = f"{'*' * 36} Tasks {'*' * 36}"
 PRINT_TASKS_BOTTOM = f"{'*' * 79}"
 
 NO_TASKS = f"{PRINT_TASKS_TOP}\n{'[No Tasks Recorded]':^78}\n{PRINT_TASKS_BOTTOM}"
+
+PLEASE_ENTER = "Please enter "
