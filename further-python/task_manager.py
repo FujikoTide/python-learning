@@ -133,9 +133,9 @@ class TaskManager:
             raise TaskNotFound(task_name)
 
     def change_task_priority(self, task_name: str, new_priority: str) -> None:
-        task_to_toggle = self._get_task_by_name(task_name)
-        if task_to_toggle:
-            task_to_toggle.change_priority(new_priority)
+        task_to_change_priority = self._get_task_by_name(task_name)
+        if task_to_change_priority:
+            task_to_change_priority.change_priority(new_priority)
         else:
             raise TaskNotFound(task_name)
 
@@ -143,45 +143,55 @@ class TaskManager:
         return next((task for task in self.tasks if task.name == task_name), None)
 
     def format_tasks(self, tasks: Tasks) -> str:
-        if tasks:
-            print_tasks = []
-            name_max_length = max([len(task.name) for task in tasks]) + len("[]")
-            if name_max_length > self._name_display_length:
-                name_max_length = self._name_display_length
+        if not tasks:
+            return config.NO_TASKS
 
-            action_max_length = max([len(task.action) for task in tasks]) + len("[]")
-            if action_max_length > self._action_display_length:
-                action_max_length = self._action_display_length
+        print_tasks = []
+        name_max_length = self._clamp_to_max_length("name")
+        action_max_length = self._clamp_to_max_length("action")
+        priority_max_length = self._get_max_length("priority")
 
-            priority_max_length = max([len(task.priority) for task in tasks]) + len(
-                "[]"
-            )
+        for task in tasks:
+            name = self._format_property(task, "name")
+            action = self._format_property(task, "action")
+            priority = f"[{task.priority}]"
+            complete = "[Complete]" if task._complete else "[Incomplete]"
+            task_output = f"{name:{name_max_length}} {action:{action_max_length}} {priority:{priority_max_length}} {complete}"
+            print_tasks.append(task_output)
 
-            for task in tasks:
-                name = task.name
-                if len(task.name) > self._name_display_length:
-                    name = textwrap.shorten(
-                        task.name, self._name_display_length, placeholder="..."
-                    )
-                name = f"[{name}]"
+        formatted_tasks = "\n".join(print_tasks)
+        return (
+            f"{config.PRINT_TASKS_TOP}\n{formatted_tasks}\n{config.PRINT_TASKS_BOTTOM}"
+        )
 
-                action = task.action
-                if len(task.action) > self._action_display_length:
-                    action = textwrap.shorten(
-                        task.action, self._action_display_length, placeholder="..."
-                    )
-                action = f"[{action}]"
+    def _get_max_length(self, name_of_property: str) -> int:
+        return max([len(getattr(task, name_of_property)) for task in self.tasks]) + len(
+            "[]"
+        )
 
-                priority = f"[{task.priority}]"
-                complete = "[Complete]" if task._complete else "[Incomplete]"
+    def _clamp_to_max_length(self, property_identifier_fragment: str) -> int:
+        max_length = self._get_max_length(property_identifier_fragment)
+        property_display_length = self._get_display_length(property_identifier_fragment)
 
-                task_output = f"{name:{name_max_length}} {action:{action_max_length}} {priority:{priority_max_length}} {complete}"
+        if max_length < property_display_length:
+            return max_length
+        return property_display_length
 
-                print_tasks.append(task_output)
+    def _format_property(self, task: Task, name_of_property: str) -> str:
+        name = getattr(task, name_of_property)
+        property_display_length = self._get_display_length(name_of_property)
 
-            formatted_tasks = "\n".join(print_tasks)
-            return f"{config.PRINT_TASKS_TOP}\n{formatted_tasks}\n{config.PRINT_TASKS_BOTTOM}"
-        return config.NO_TASKS
+        if len(name) < property_display_length:
+            return f"[{name}]"
+
+        truncated_name = textwrap.shorten(
+            name, property_display_length, placeholder="..."
+        )
+        return f"[{truncated_name}]"
+
+    def _get_display_length(self, property_identifier_fragment: str) -> int:
+        property_name = f"_{property_identifier_fragment}_display_length"
+        return getattr(self, property_name)
 
 
 @dataclass
