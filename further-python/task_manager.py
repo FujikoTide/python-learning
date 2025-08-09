@@ -111,33 +111,33 @@ class TaskManager:
     def __str__(self) -> str:
         return self.format_tasks(self.tasks)
 
-    def add_task(self, task: Task) -> None:
+    def add_task(self, task: Task) -> Task | None:
         task_exists = self._get_task_by_name(task.name)
-        if not task_exists:
-            self.tasks.append(task)
-        else:
-            raise NameError()
+        if task_exists:
+            return task_exists
+        self.tasks.append(task)
+        return None
 
-    def remove_task(self, task_name: str) -> None:
+    def remove_task(self, task_name: str) -> Task | None:
         task_to_remove = self._get_task_by_name(task_name)
-        if task_to_remove:
-            self.tasks.remove(task_to_remove)
-        else:
-            print("Task not found")
+        if not task_to_remove:
+            return None
+        self.tasks.remove(task_to_remove)
+        return task_to_remove
 
-    def toggle_complete_task(self, task_name: str) -> None:
+    def toggle_complete_task(self, task_name: str) -> Task | None:
         task_to_toggle = self._get_task_by_name(task_name)
-        if task_to_toggle:
-            task_to_toggle.toggle_complete()
-        else:
-            print("Task not found")
+        if not task_to_toggle:
+            return None
+        task_to_toggle.toggle_complete()
+        return task_to_toggle
 
-    def change_task_priority(self, task_name: str, new_priority: str) -> None:
+    def change_task_priority(self, task_name: str, new_priority: str) -> Task | None:
         task_to_change_priority = self._get_task_by_name(task_name)
-        if task_to_change_priority:
-            task_to_change_priority.change_priority(new_priority)
-        else:
-            print("Task not found")
+        if not task_to_change_priority:
+            return None
+        task_to_change_priority.change_priority(new_priority)
+        return task_to_change_priority
 
     def _get_task_by_name(self, task_name: str) -> Task | None:
         return next((task for task in self.tasks if task.name == task_name), None)
@@ -197,14 +197,14 @@ class TaskManager:
 @dataclass
 class InputHandler(Protocol):
     @staticmethod
-    def _get_input(prompt: str, prefix: str = "") -> str: ...
+    def _get_input(prompt: str) -> str: ...
 
 
 @dataclass
 class CLIHandler:
     @staticmethod
-    def _get_input(prompt: str, prefix: str = "") -> str:
-        user_input = input(f"{prefix}{prompt}: ")
+    def _get_input(prompt: str) -> str:
+        user_input = input(f"{prompt}: ")
         return user_input.strip().lower()
 
 
@@ -219,54 +219,60 @@ class Task_CLI:
     def _main_menu(self) -> None:
         self._print_menu(config.MAIN_MENU)
 
-    def _add_task(self) -> Task:
+    def _add_task(self) -> None:
         name = None
         action = None
         priority = None
         while True:
-            if name is None:
-                name = self.input_handler._get_input(
-                    config.NAME_OF_TASK, config.PLEASE_ENTER
-                )
-            if action is None:
-                action = self.input_handler._get_input(
-                    config.TASK_ACTION, config.PLEASE_ENTER
-                )
-            if priority is None:
-                priority = self.input_handler._get_input(
-                    config.TASK_PRIORITY, config.PLEASE_ENTER
-                )
-            if priority not in config.PRIORITY:
-                priority = None
+            self._print_menu(config.ADD_TASK_MENU)
+            choice = self.input_handler._get_input(config.CHOICE)
+            if choice == "q":
+                break
+            if choice == "1":
+                while True:
+                    if not name:
+                        name = self.input_handler._get_input(config.NAME_OF_TASK)
+                    if not action:
+                        action = self.input_handler._get_input(config.TASK_ACTION)
+                    if priority not in config.PRIORITY:
+                        priority = self.input_handler._get_input(config.TASK_PRIORITY)
+                    if not name or not action:
+                        continue
+                    if priority not in config.PRIORITY:
+                        priority = None
+                        continue
+                    break
+            if not name or not action or priority not in config.PRIORITY:
+                print("Task not added.")
                 continue
-            return Task(name, action, priority)
+            task = Task(name, action, priority)
+            successful_task = self._tasks.add_task(task)
+            if not successful_task:
+                print(f"Task {name} not added.")
+                continue
+            print(f"Task {name} successfully added.")
 
     def _delete_task(self) -> None:
         task_name = ""
         while True:
-            self._print_menu(config.DELETE_MENU)
-            choice = self.input_handler._get_input(config.CHOICE, config.PLEASE_ENTER)
+            self._print_menu(config.DELETE_TASK_MENU)
+            choice = self.input_handler._get_input(config.CHOICE)
             if choice == "q":
                 break
             if choice == "1":
-                task_name = self.input_handler._get_input(
-                    config.NAME_OF_TASK_TO_DELETE, config.PLEASE_ENTER
-                )
-            try:
-                task_exists = self._tasks._get_task_by_name(task_name)
-                if task_exists:
-                    self._tasks.remove_task(task_name)
-            except TaskNotFound as e:
-                print(e)
-            else:
-                print(f"Task {task_name} successfully deleted.")
+                task_name = self.input_handler._get_input(config.NAME_OF_TASK_TO_DELETE)
+            successful_task = self._tasks.remove_task(task_name)
+            if not successful_task:
+                print(f"Task {task_name} not found.")
+                continue
+            print(f"Task {task_name} successfully deleted.")
 
     def _list_tasks(self) -> None:
         completed = [task for task in self._tasks.tasks if task._complete]
         pending = [task for task in self._tasks.tasks if not task._complete]
         while True:
             self._print_menu(config.LIST_TASKS_MENU)
-            choice = self.input_handler._get_input(config.CHOICE, config.PLEASE_ENTER)
+            choice = self.input_handler._get_input(config.CHOICE)
             if choice == "q":
                 break
             if choice == "1":
@@ -278,75 +284,51 @@ class Task_CLI:
 
     def _toggle_complete(self) -> None:
         task_name = ""
-        completed = False
         while True:
-            self._print_menu(config.TOGGLE_COMPLETE_MENU)
-            choice = self.input_handler._get_input(config.CHOICE, config.PLEASE_ENTER)
+            self._print_menu(config.TOGGLE_TASK_COMPLETE_MENU)
+            choice = self.input_handler._get_input(config.CHOICE)
             if choice == "q":
                 break
             if choice == "1":
-                task_name = self.input_handler._get_input(
-                    config.NAME_OF_TASK_TO_TOGGLE, config.PLEASE_ENTER
-                )
-            try:
-                task_exists = self._tasks._get_task_by_name(task_name)
-                if task_exists:
-                    completed = task_exists._complete
-                    self._print_task(task_name)
-                    confirm_toggle = self.input_handler._get_input(
-                        config.CONFIRM_TOGGLE
-                    )
-                    if confirm_toggle == "y":
-                        self._tasks.toggle_complete_task(task_name)
-                    else:
-                        print("Operation not confirmed, Toggle has not been changed")
-                        continue
-                    self._print_task(task_name)
+                task_name = self.input_handler._get_input(config.NAME_OF_TASK_TO_TOGGLE)
+                self._print_task(task_name)
+                confirm_toggle = self.input_handler._get_input(config.CONFIRM_TOGGLE)
+                if confirm_toggle != "y":
                     continue
-            except TaskNotFound as e:
-                print(e)
-            else:
-                print(
-                    f"Task {task_name} set to {'Complete' if completed else 'Incomplete'}."
-                )
+                successful_task = self._tasks.toggle_complete_task(task_name)
+                if not successful_task:
+                    print("Operation not confirmed, Toggle has not been changed")
+                    continue
+                print(f"Task {task_name} set to Toggle {successful_task._complete}.")
 
     def _change_priority(self) -> None:
         task_name = ""
-        new_priority = ""
         while True:
-            self._print_menu(config.CHANGE_PRIORITY_MENU)
-            choice = self.input_handler._get_input(config.CHOICE, config.PLEASE_ENTER)
+            self._print_menu(config.CHANGE_TASK_PRIORITY_MENU)
+            choice = self.input_handler._get_input(config.CHOICE)
             if choice == "q":
                 break
             if choice == "1":
                 task_name = self.input_handler._get_input(
-                    config.NAME_OF_TASK_TO_CHANGE_PRIORITY, config.PLEASE_ENTER
+                    config.NAME_OF_TASK_TO_CHANGE_PRIORITY
                 )
-            try:
-                task_exists = self._tasks._get_task_by_name(task_name)
-                if task_exists:
-                    self._print_task(task_name)
-                    new_priority = self.input_handler._get_input(
-                        config.NEW_PRIORITY, config.PLEASE_ENTER
-                    )
-                    if new_priority in config.PRIORITY:
-                        self._tasks.change_task_priority(task_name, new_priority)
-                    else:
-                        print(
-                            f"Priority given was not one of {config.PRIORITY}, Priority has not been changed"
-                        )
-                        continue
-                    self._print_task(task_name)
-                    continue
-            except TaskNotFound as e:
-                print(e)
-            else:
-                print(f"Task {task_name} Priority changed to: {new_priority}")
+            self._print_task(task_name)
+            new_priority = self.input_handler._get_input(config.NEW_PRIORITY)
+            if new_priority not in config.PRIORITY:
+                print(
+                    f"Priority given was not one of {config.PRIORITY}, Priority has not been changed"
+                )
+                continue
+            successful_task = self._tasks.change_task_priority(task_name, new_priority)
+            if not successful_task:
+                print("Task Priority was not changed.")
+                continue
+            print(f"Task {task_name} Priority changed to {new_priority}")
 
     def _save_tasks(self) -> None:
         while True:
             self._print_menu(config.SAVE_TASKS_MENU)
-            choice = self.input_handler._get_input(config.CHOICE, config.PLEASE_ENTER)
+            choice = self.input_handler._get_input(config.CHOICE)
             if choice == "q":
                 break
             if choice == "1":
@@ -356,7 +338,7 @@ class Task_CLI:
     def _load_tasks(self) -> None:
         while True:
             self._print_menu(config.LOAD_TASKS_MENU)
-            choice = self.input_handler._get_input(config.CHOICE, config.PLEASE_ENTER)
+            choice = self.input_handler._get_input(config.CHOICE)
             if choice == "q":
                 break
             if choice == "1":
@@ -375,7 +357,7 @@ class Task_CLI:
         print(task)
 
     def _get_filename(self) -> str:
-        filename = self.input_handler._get_input(config.FILENAME, config.PLEASE_ENTER)
+        filename = self.input_handler._get_input(config.FILENAME)
         if filename == "":
             filename = config.DEFAULT_FILENAME
         return filename
@@ -383,12 +365,11 @@ class Task_CLI:
     def run(self) -> None:
         while True:
             self._main_menu()
-            choice = self.input_handler._get_input(config.CHOICE, config.PLEASE_ENTER)
+            choice = self.input_handler._get_input(config.CHOICE)
             if choice == "q":
                 break
             if choice == "1":
-                task = self._add_task()
-                self._tasks.add_task(task)
+                self._add_task()
             if choice == "2":
                 self._list_tasks()
             if choice == "3":

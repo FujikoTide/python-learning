@@ -15,12 +15,12 @@ MAIN_MENU = [
     "=" * 80,
 ]
 
-ADD_MENU = [
+ADD_TASK_MENU = [
     "[1] Add Task",
     "[q] Back",
 ]
 
-DELETE_MENU = [
+DELETE_TASK_MENU = [
     "[1] Delete Task",
     "[q] Back",
 ]
@@ -32,12 +32,12 @@ LIST_TASKS_MENU = [
     "[q] Back",
 ]
 
-TOGGLE_COMPLETE_MENU = [
+TOGGLE_TASK_COMPLETE_MENU = [
     "[1] Toggle a Task's Complete Status",
     "[q] Back",
 ]
 
-CHANGE_PRIORITY_MENU = [
+CHANGE_TASK_PRIORITY_MENU = [
     "[1] Change a Task's Priority",
     "[q] Back",
 ]
@@ -53,15 +53,15 @@ LOAD_TASKS_MENU = [
 ]
 
 
-CHOICE = "choice"
-NAME_OF_TASK = "name of task"
-TASK_ACTION = "task action"
-TASK_PRIORITY = f"task priority {PRIORITY}"
-NAME_OF_TASK_TO_DELETE = "name of task to delete"
-NAME_OF_TASK_TO_TOGGLE = "name of task to toggle"
-NAME_OF_TASK_TO_CHANGE_PRIORITY = "name of task to change Priority"
-NEW_PRIORITY = "new Priority"
-FILENAME = "filename"
+CHOICE = "Please enter choice"
+NAME_OF_TASK = "Please enter name of task"
+TASK_ACTION = "Please enter task action"
+TASK_PRIORITY = f"Please enter task priority {PRIORITY}"
+NAME_OF_TASK_TO_DELETE = "Please enter name of task to delete"
+NAME_OF_TASK_TO_TOGGLE = "Please enter name of task to toggle"
+NAME_OF_TASK_TO_CHANGE_PRIORITY = "Please enter name of task to change Priority"
+NEW_PRIORITY = "Please enter new Priority"
+FILENAME = "Please enter filename"
 CONFIRM_TOGGLE = "Do you wish to toggle this Task's Complete Status? (y/n) "
 
 
@@ -72,5 +72,3 @@ PRINT_TASKS_TOP = f"{'*' * 36} Tasks {'*' * 36}"
 PRINT_TASKS_BOTTOM = f"{'*' * 79}"
 
 NO_TASKS = f"{PRINT_TASKS_TOP}\n{'[No Tasks Recorded]':^78}\n{PRINT_TASKS_BOTTOM}"
-
-PLEASE_ENTER = "Please enter "
