@@ -123,21 +123,21 @@ class TaskManager:
         if task_to_remove:
             self.tasks.remove(task_to_remove)
         else:
-            raise TaskNotFound(task_name)
+            print("Task not found")
 
     def toggle_complete_task(self, task_name: str) -> None:
         task_to_toggle = self._get_task_by_name(task_name)
         if task_to_toggle:
             task_to_toggle.toggle_complete()
         else:
-            raise TaskNotFound(task_name)
+            print("Task not found")
 
     def change_task_priority(self, task_name: str, new_priority: str) -> None:
         task_to_change_priority = self._get_task_by_name(task_name)
         if task_to_change_priority:
             task_to_change_priority.change_priority(new_priority)
         else:
-            raise TaskNotFound(task_name)
+            print("Task not found")
 
     def _get_task_by_name(self, task_name: str) -> Task | None:
         return next((task for task in self.tasks if task.name == task_name), None)
