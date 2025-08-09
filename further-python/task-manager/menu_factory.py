@@ -1,13 +1,3 @@
-# MAIN_MENU = {
-#     "1": "_add_task",
-#     "2": "_list_tasks",
-#     "3": "_toggle_complete",
-#     "4": "_change_priority",
-#     "5": "_delete_task",
-#     "6": "_save_tasks",
-#     "7": "_load_tasks",
-# }
-
 # GET_INPUT = {"1": "input_handler._get_input"}
 
 # LIST_TASKS = {
@@ -15,8 +5,14 @@
 #     "2": "_tasks.format_tasks",
 # }
 
+from collections.abc import Callable
+from typing import TYPE_CHECKING
 
-def create_menu(manager):
+if TYPE_CHECKING:
+    from task_cli import Task_CLI
+
+
+def create_menu(manager: Task_CLI) -> dict[str, Callable[[], None]]:
     return {
         "1": manager._add_task,
         "2": manager._list_tasks,
