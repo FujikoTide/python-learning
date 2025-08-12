@@ -1,13 +1,10 @@
 from item_store import Store
-from _types import items
 from item import Item
 from dataclasses import dataclass
 
 
 @dataclass
 class Inventory(Store):
-    inventory: items
-
     def add_item(self, item: Item) -> Item | None:
         pass
 

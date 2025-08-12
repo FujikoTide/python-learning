@@ -1,12 +1,12 @@
 from abc import ABC, abstractmethod
-from _types import items
 from item import Item
-from dataclasses import dataclass
+from _types import items
+from dataclasses import dataclass, field
 
 
 @dataclass
 class Store(ABC):
-    store: items
+    item_store: items = field(default_factory=items)
 
     @abstractmethod
     def add_item(self, item: Item) -> Item | None:

@@ -1,12 +1,13 @@
 from item_store import Store
-from _types import items
 from item import Item
 from dataclasses import dataclass
 
 
 @dataclass
 class Cart(Store):
-    shopping_cart: items
+    discount_percentage: int = 0
+    gift_card: int = 0
+    tax: float = 20  # arbitrary default value
 
     def add_item(self, item: Item) -> Item | None:
         pass
@@ -17,10 +18,8 @@ class Cart(Store):
     def change_item_quantity(self, product_id: int, quantity: int) -> Item | None:
         pass
 
-    def calculate_total(self) -> float:
+    def calculate_price(self):
         pass
-    
-    def apply_percentage_discount(self, discount: int) -> float:
-        pass
-    
-    def apply_gift_card(self, card_value: int) -> float:
+
+
+cart = Cart()
