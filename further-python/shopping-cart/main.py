@@ -1,6 +1,10 @@
 from decimal import Decimal
 from item import Item
 from cart import Cart
+from credit_card_payment import CreditCardPayment
+from paypal_payment import PaypalPayment
+from checkout import Checkout
+from calculate_price import CalculatePrice
 
 
 def main():
@@ -19,6 +23,15 @@ def main():
     cart.add_item(item3, 5)
 
     print(cart)
+
+    credit_card_payment = CreditCardPayment()
+    paypal_payment = PaypalPayment()
+    calculate_price = CalculatePrice(cart)
+    checkout = Checkout(credit_card_payment, calculate_price)
+    checkout2 = Checkout(paypal_payment, calculate_price)
+
+    checkout.perform_checkout()
+    checkout2.perform_checkout()
 
 
 if __name__ == "__main__":

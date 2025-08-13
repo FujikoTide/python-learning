@@ -1,12 +1,13 @@
 from dataclasses import dataclass
 from payment import Payment
-from cart import Cart
-from config import TAX_RATE_PERCENTAGE, CURRENT_DISCOUNT
 from calculate_price import CalculatePrice
 
 
 @dataclass
 class Checkout:
-    cart: Cart
     payment_process: Payment
-    calculate_price = CalculatePrice
+    calculate_price: CalculatePrice
+
+    def perform_checkout(self):
+        amount = self.calculate_price.calculate_final_total()
+        print(self.payment_process.pay(amount))
