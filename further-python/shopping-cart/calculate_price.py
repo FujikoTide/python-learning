@@ -1,10 +1,12 @@
 from dataclasses import dataclass
+import config
 
 
 @dataclass
 class CalculatePrice:
     _items: items
-    _percentage_discount: int = 0
+    discount_percentage: int = config.CURRENT_DISCOUNT
+    tax: float = config.TAX_RATE_PERCENTAGE
     _gift_card: int = 0
     _tax: float = 20
     # may need some rethinking, but for now this is fine
@@ -21,6 +23,9 @@ class CalculatePrice:
         return sum(
             item.price * quantity for item, quantity in self.shopping_cart.items()
         )
+
+    def _add_gift_card(self, gift_card_amount: int) -> None:
+        self._gift_card = gift_card_amount
 
     def _apply_percentage_discount(self) -> float:
         return total * (1 - (discount / 100))
