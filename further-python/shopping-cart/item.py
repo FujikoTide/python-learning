@@ -1,7 +1,7 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from decimal import Decimal
 from typing import Self
-from uuid import uuid4
+from uuid import UUID, uuid4
 from decorators import feature_flag
 from config import FeatureFlags
 
@@ -11,13 +11,11 @@ class Item:
     name: str
     description: str
     price: Decimal
-    _id: str = ""
+    _id: UUID = field(default_factory=uuid4)
 
     def __post_init__(self):
         if not isinstance(self.price, Decimal):
             self.price = Decimal(self.price)
-        # store uuid as string for human reading, ideally use UUID object in actual databases etc
-        self._id = str(uuid4())
 
     @feature_flag(FeatureFlags.PRINT_OUTPUT)
     def change_item_name(self, name: str) -> Self | None:
